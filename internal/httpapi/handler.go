@@ -133,15 +133,16 @@ func (h *Hander) EventsForDay(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	date, err := parseDate(r.Form)
+	userId, date, err := parseDailyEventsRequest(r.Form)
 	if err != nil {
 		writeBadRequestError(w, err)
 		return
 	}
 
 	result, err := h.service.GetEvents(r.Context(), model.EventFilter{
-		From: date,
-		To:   date,
+		UserID: userId,
+		From:   date,
+		To:     date,
 	})
 	if err != nil {
 		writeInternalServerError(w, err)

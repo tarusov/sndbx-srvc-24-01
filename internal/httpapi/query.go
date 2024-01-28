@@ -75,6 +75,22 @@ func parseEventDeleteRequest(vals url.Values) (empty model.EventDeleteRequest, e
 	}, nil
 }
 
+// parseDailyEventsRequest
+func parseDailyEventsRequest(vals url.Values) (userID int, date model.Date, err error) {
+
+	userID, err = parseUserID(vals)
+	if err != nil {
+		return 0, date, err
+	}
+
+	date, err = parseDate(vals)
+	if err != nil {
+		return 0, date, err
+	}
+
+	return userID, date, nil
+}
+
 // parseEventID
 func parseEventID(vals url.Values) (int, error) {
 
@@ -89,14 +105,14 @@ func parseEventID(vals url.Values) (int, error) {
 // parseEventParams
 func parseEventParams(vals url.Values) (empty eventParams, err error) {
 
-	userID, err := strconv.Atoi(vals.Get(queryParamUserID))
+	userID, err := parseUserID(vals)
 	if err != nil {
-		return empty, fmt.Errorf("invalid user_id format: %w", err)
+		return empty, err
 	}
 
-	date, err := time.Parse(queryDateFormat, vals.Get(queryParamDate))
+	date, err := parseDate(vals)
 	if err != nil {
-		return empty, fmt.Errorf("invalid date format: %w", err)
+		return empty, err
 	}
 
 	return eventParams{
@@ -104,6 +120,17 @@ func parseEventParams(vals url.Values) (empty eventParams, err error) {
 		Date:        model.Date(date),
 		Description: vals.Get(queryParamDescription),
 	}, nil
+}
+
+// parseUserID
+func parseUserID(vals url.Values) (int, error) {
+
+	userID, err := strconv.Atoi(vals.Get(queryParamUserID))
+	if err != nil {
+		return 0, fmt.Errorf("invalid user_id format: %w", err)
+	}
+
+	return userID, nil
 }
 
 // parseDate
